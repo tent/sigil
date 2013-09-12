@@ -32,7 +32,14 @@ var config = gen.Sigil{
 
 func rgb(r, g, b uint8) color.NRGBA { return color.NRGBA{r, g, b, 255} }
 
-func imageHandler(w http.ResponseWriter, r *http.Request) {
+type handler struct{}
+
+func (handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path == "/favicon.ico" {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
 	ext := path.Ext(r.URL.Path)
 	if ext != "" && ext != ".png" && ext != ".svg" {
 		ext = ""
@@ -98,13 +105,10 @@ func md5hash(s string) []byte {
 }
 
 func main() {
-	http.HandleFunc("/favicon.ico", http.NotFound)
-	http.HandleFunc("/", imageHandler)
-
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8000"
 	}
 	log.Println("Starting sigil on :" + port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	log.Fatal(http.ListenAndServe(":"+port, handler{}))
 }
