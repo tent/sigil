@@ -49,11 +49,10 @@ func (s *Sigil) Make(width int, inverted bool, data []byte) image.Image {
 	return img
 }
 
-func (s *Sigil) MakeSVG(w io.Writer, inverted bool, data []byte) {
+func (s *Sigil) MakeSVG(w io.Writer, width int, inverted bool, data []byte) {
 	canvas := svg.New(w)
 	fg, bg := s.colors(data[0], inverted)
 	fgFill, bgFill := svgFill(fg), svgFill(bg)
-	width := (s.Rows + 1) * 2 * 40
 
 	canvas.Start(width, width)
 	canvas.Rect(0, 0, width, width, bgFill)

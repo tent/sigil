@@ -91,7 +91,7 @@ func (handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "max-age=315360000")
 	if ext == ".svg" || strings.Contains(r.Header.Get("Accept"), "image/svg+xml") {
 		w.Header().Set("Content-Type", "image/svg+xml")
-		config.MakeSVG(w, inverted, data)
+		config.MakeSVG(w, width, inverted, data)
 		return
 	}
 	w.Header().Set("Content-Type", "image/png")
