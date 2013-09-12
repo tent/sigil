@@ -1,7 +1,7 @@
 # Sigil
 
 ![Sigil's Sigil](https://sigil.herokuapp.com/sigil)
-![Sigil's inverted Sigil](https://sigil.herokuapp.com/sigil.svg?inverted=1)
+![Sigil's inverted Sigil](https://sigil.herokuapp.com/sigil?inverted=1)
 
 Sigil is a deterministic [identicon](https://en.wikipedia.org/wiki/Identicon) generator. 
 
