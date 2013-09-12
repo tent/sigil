@@ -17,24 +17,12 @@ type Sigil struct {
 
 func (s *Sigil) Make(width int, inverted bool, data []byte) image.Image {
 	fg, bg := s.colors(data[0], inverted)
-	palette := color.Palette{fg, bg}
+	palette := color.Palette{bg, fg}
 	img := image.NewPaletted(image.Rect(0, 0, width, width), palette)
 	colWidth := s.colWidth(width)
-	for _, c := range s.cells(colWidth, data[1:]) {
-		for x := c.rect.Min.X; x < c.rect.Max.X; x++ {
-			for y := c.rect.Min.Y; y < c.rect.Max.Y; y++ {
-				var fill uint8
-				if !c.fill {
-					fill = 1
-				}
-				img.Pix[y*img.Stride+x] = fill
-			}
-		}
-	}
-	padding := colWidth / 2
-	for x := 0; x < width; x++ {
-		for y := 0; y < width; y++ {
-			if x < padding || y < padding || x > width-padding-1 || y > width-padding-1 {
+	for _, rect := range s.cells(colWidth, data[1:]) {
+		for x := rect.Min.X; x < rect.Max.X; x++ {
+			for y := rect.Min.Y; y < rect.Max.Y; y++ {
 				img.Pix[y*img.Stride+x] = 1
 			}
 		}
@@ -49,10 +37,8 @@ func (s *Sigil) MakeSVG(w io.Writer, width int, inverted bool, data []byte) {
 
 	canvas.Start(width, width)
 	canvas.Rect(0, 0, width, width, bgFill)
-	for _, c := range s.cells(s.colWidth(width), data[1:]) {
-		if c.fill {
-			canvas.Rect(c.rect.Min.X, c.rect.Min.Y, c.rect.Dx(), c.rect.Dy(), fgFill)
-		}
+	for _, rect := range s.cells(s.colWidth(width), data[1:]) {
+		canvas.Rect(rect.Min.X, rect.Min.Y, rect.Dx(), rect.Dy(), fgFill)
 	}
 	canvas.End()
 }
@@ -68,34 +54,32 @@ func (s *Sigil) fill(cell int, data []byte) bool {
 	return true
 }
 
-type cell struct {
-	fill bool
-	rect image.Rectangle
-}
-
-func (s *Sigil) cells(width int, data []byte) []cell {
+func (s *Sigil) cells(width int, data []byte) []image.Rectangle {
 	cols := s.Rows/2 + s.Rows%2
 	cells := cols * s.Rows
-	res := make([]cell, 0, s.Rows*s.Rows)
+	res := make([]image.Rectangle, 0, s.Rows*s.Rows)
 	padding := width / 2
 	for i := 0; i < cells; i++ {
+		if !s.fill(i, data) {
+			continue
+		}
+
 		column := i / s.Rows
 		row := i % s.Rows
-		c := cell{fill: s.fill(i, data)}
 
 		pt := image.Pt(padding+(column*width), padding+(row*width))
-		c.rect = image.Rectangle{pt, image.Pt(pt.X+width, pt.Y+width)}
+		rect := image.Rectangle{pt, image.Pt(pt.X+width, pt.Y+width)}
 		if s.Rows%2 == 0 && column == cols-1 {
 			// last/middle column, double width
-			c.rect.Max.X += width
+			rect.Max.X += width
 		}
-		res = append(res, c)
+		res = append(res, rect)
 
 		if column < cols-1 {
 			// add mirrored column
-			c.rect.Min.X = padding + ((s.Rows - column - 1) * width)
-			c.rect.Max.X = c.rect.Min.X + width
-			res = append(res, c)
+			rect.Min.X = padding + ((s.Rows - column - 1) * width)
+			rect.Max.X = rect.Min.X + width
+			res = append(res, rect)
 		}
 	}
 	return res
