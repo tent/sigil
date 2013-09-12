@@ -13,12 +13,11 @@ type Sigil struct {
 	Rows       int
 	Foreground []color.NRGBA
 	Background color.NRGBA
-	Inverted   bool
 }
 
-func (s *Sigil) Make(width int, data []byte) image.Image {
+func (s *Sigil) Make(width int, inverted bool, data []byte) image.Image {
 	img := image.NewNRGBA(image.Rect(0, 0, width, width))
-	fg, bg := s.colors(data[0])
+	fg, bg := s.colors(data[0], inverted)
 	colWidth := s.colWidth(width)
 	for _, c := range s.cells(colWidth, data[1:]) {
 		for x := c.rect.Min.X; x < c.rect.Max.X; x++ {
@@ -50,9 +49,9 @@ func (s *Sigil) Make(width int, data []byte) image.Image {
 	return img
 }
 
-func (s *Sigil) MakeSVG(w io.Writer, data []byte) {
+func (s *Sigil) MakeSVG(w io.Writer, inverted bool, data []byte) {
 	canvas := svg.New(w)
-	fg, bg := s.colors(data[0])
+	fg, bg := s.colors(data[0], inverted)
 	fgFill, bgFill := svgFill(fg), svgFill(bg)
 	width := (s.Rows + 1) * 2 * 40
 
@@ -110,9 +109,9 @@ func (s *Sigil) cells(width int, data []byte) []cell {
 	return res
 }
 
-func (s *Sigil) colors(b byte) (color.NRGBA, color.NRGBA) {
+func (s *Sigil) colors(b byte, inverted bool) (color.NRGBA, color.NRGBA) {
 	fg := s.Foreground[int(b)%len(s.Foreground)]
-	if s.Inverted {
+	if inverted {
 		return s.Background, fg
 	}
 	return fg, s.Background

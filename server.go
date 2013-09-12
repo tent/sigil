@@ -40,7 +40,8 @@ func imageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	width := 240
-	if ws := r.URL.Query().Get("w"); ws != "" {
+	q := r.URL.Query()
+	if ws := q.Get("w"); ws != "" {
 		var err error
 		width, err = strconv.Atoi(ws)
 		if err != nil {
@@ -56,6 +57,10 @@ func imageHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Invalid w parameter, must be evenly divisible by "+strconv.Itoa(div), http.StatusBadRequest)
 			return
 		}
+	}
+	inverted := false
+	if inv := q.Get("inverted"); inv != "" && inv != "false" && inv != "0" {
+		inverted = true
 	}
 
 	base := path.Base(r.URL.Path)
@@ -81,11 +86,11 @@ func imageHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "max-age=315360000")
 	if ext == ".svg" {
 		w.Header().Set("Content-Type", "image/svg+xml")
-		config.MakeSVG(w, data)
+		config.MakeSVG(w, inverted, data)
 		return
 	}
 	w.Header().Set("Content-Type", "image/png")
-	png.Encode(w, config.Make(width, data))
+	png.Encode(w, config.Make(width, inverted, data))
 }
 
 func md5hash(s string) []byte {

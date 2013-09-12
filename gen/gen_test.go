@@ -10,8 +10,7 @@ import (
 
 var data, _ = hex.DecodeString("0447550ed53b522827e17b7d7976dd3f")
 var config = Sigil{
-	Width: 420,
-	Rows:  5,
+	Rows: 5,
 	Foreground: []color.NRGBA{
 		rgb(45, 79, 255),
 		rgb(44, 172, 0),
@@ -30,18 +29,18 @@ func rgb(r, g, b uint8) color.NRGBA { return color.NRGBA{r, g, b, 255} }
 
 func BenchmarkMake(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		config.Make(data)
+		config.Make(420, false, data)
 	}
 }
 
 func BenchmarkMakeEncode(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		png.Encode(ioutil.Discard, config.Make(data))
+		png.Encode(ioutil.Discard, config.Make(420, false, data))
 	}
 }
 
 func BenchmarkMakeSVG(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		config.MakeSVG(ioutil.Discard, data)
+		config.MakeSVG(ioutil.Discard, false, data)
 	}
 }
