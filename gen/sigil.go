@@ -28,7 +28,7 @@ func (s *Sigil) Make(data []byte) image.Image {
 				if !c.fill {
 					fill = bg
 				}
-				i := img.PixOffset(x, y)
+				i := y*img.Stride + x*4
 				img.Pix[i+0] = fill.R
 				img.Pix[i+1] = fill.G
 				img.Pix[i+2] = fill.B
@@ -40,7 +40,7 @@ func (s *Sigil) Make(data []byte) image.Image {
 	for x := 0; x < s.Width; x++ {
 		for y := 0; y < s.Width; y++ {
 			if x < padding || y < padding || x > s.Width-padding-1 || y > s.Width-padding-1 {
-				i := img.PixOffset(x, y)
+				i := y*img.Stride + x*4
 				img.Pix[i+0] = bg.R
 				img.Pix[i+1] = bg.G
 				img.Pix[i+2] = bg.B
