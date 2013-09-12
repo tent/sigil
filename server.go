@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/md5"
+	"encoding/base64"
 	"encoding/hex"
 	"image/color"
 	"image/png"
@@ -9,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"strings"
 
 	"github.com/cupcake/sigil/gen"
 )
@@ -48,6 +50,15 @@ func imageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	if data == nil {
 		data = md5hash(base)
+	}
+
+	etag := `"` + base64.StdEncoding.EncodeToString(data) + `"`
+	w.Header().Set("Etag", etag)
+	if cond := r.Header.Get("If-None-Match"); cond != "" {
+		if strings.Contains(cond, etag) {
+			w.WriteHeader(http.StatusNotModified)
+			return
+		}
 	}
 
 	w.Header().Set("Cache-Control", "max-age=315360000")
