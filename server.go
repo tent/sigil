@@ -62,15 +62,14 @@ func imageHandler(w http.ResponseWriter, r *http.Request) {
 		inverted = true
 	}
 
-	base := path.Base(r.URL.Path)
-	base = base[:len(base)-len(ext)]
+	str := r.URL.Path[1 : len(r.URL.Path)-len(ext)]
 	var data []byte
-	if len(base) == 32 {
+	if len(str) == 32 {
 		// try to decode hex MD5
-		data, _ = hex.DecodeString(base)
+		data, _ = hex.DecodeString(str)
 	}
 	if data == nil {
-		data = md5hash(base)
+		data = md5hash(str)
 	}
 
 	etag := `"` + base64.StdEncoding.EncodeToString(data) + `"`
