@@ -40,3 +40,9 @@ func BenchmarkMakeEncode(b *testing.B) {
 		png.Encode(ioutil.Discard, config.Make(data))
 	}
 }
+
+func BenchmarkMakeSVG(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		config.MakeSVG(ioutil.Discard, data)
+	}
+}
