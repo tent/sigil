@@ -19,8 +19,7 @@ func (s *Sigil) Make(width int, inverted bool, data []byte) image.Image {
 	fg, bg := s.colors(data[0], inverted)
 	palette := color.Palette{bg, fg}
 	img := image.NewPaletted(image.Rect(0, 0, width, width), palette)
-	colWidth := s.colWidth(width)
-	for _, rect := range s.cells(colWidth, data[1:]) {
+	for _, rect := range s.cells(width, data[1:]) {
 		for x := rect.Min.X; x < rect.Max.X; x++ {
 			for y := rect.Min.Y; y < rect.Max.Y; y++ {
 				img.Pix[y*img.Stride+x] = 1
@@ -37,7 +36,7 @@ func (s *Sigil) MakeSVG(w io.Writer, width int, inverted bool, data []byte) {
 
 	canvas.Start(width, width)
 	canvas.Rect(0, 0, width, width, bgFill)
-	for _, rect := range s.cells(s.colWidth(width), data[1:]) {
+	for _, rect := range s.cells(width, data[1:]) {
 		canvas.Rect(rect.Min.X, rect.Min.Y, rect.Dx(), rect.Dy(), fgFill)
 	}
 	canvas.End()
@@ -55,6 +54,7 @@ func (s *Sigil) fill(cell int, data []byte) bool {
 }
 
 func (s *Sigil) cells(width int, data []byte) []image.Rectangle {
+	width = width / (s.Rows + 1)
 	cols := s.Rows/2 + s.Rows%2
 	cells := cols * s.Rows
 	res := make([]image.Rectangle, 0, s.Rows*s.Rows)
@@ -91,8 +91,4 @@ func (s *Sigil) colors(b byte, inverted bool) (color.NRGBA, color.NRGBA) {
 		return s.Background, fg
 	}
 	return fg, s.Background
-}
-
-func (s *Sigil) colWidth(w int) int {
-	return w / (s.Rows + 1)
 }
