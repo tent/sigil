@@ -1,7 +1,7 @@
 # Sigil
 
-![Sigil's Sigil](https://sigil.herokuapp.com/sigil)
-![Sigil's inverted Sigil](https://sigil.herokuapp.com/sigil?inverted=1)
+![Sigil's Sigil](https://sigil.cupcake.io/Sigil)
+![Sigil's inverted Sigil](https://sigil.cupcake.io/Sigil?inverted=1)
 
 Sigil is a deterministic [identicon](https://en.wikipedia.org/wiki/Identicon) generator originally created for [Cupcake](https://cupcake.io).
 
