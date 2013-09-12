@@ -41,6 +41,6 @@ func BenchmarkMakeEncode(b *testing.B) {
 
 func BenchmarkMakeSVG(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		config.MakeSVG(ioutil.Discard, width, false, data)
+		config.MakeSVG(ioutil.Discard, 420, false, data)
 	}
 }
