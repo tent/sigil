@@ -14,9 +14,8 @@ import (
 )
 
 var config = gen.Sigil{
-	Width:   420,
-	Columns: 3,
-	Rows:    5,
+	Width: 420,
+	Rows:  5,
 	Foreground: []color.NRGBA{
 		rgb(45, 79, 255),
 		rgb(44, 172, 0),

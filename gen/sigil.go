@@ -11,7 +11,6 @@ import (
 
 type Sigil struct {
 	Width      int
-	Columns    int
 	Rows       int
 	Foreground []color.NRGBA
 	Background color.NRGBA
@@ -83,10 +82,10 @@ type cell struct {
 }
 
 func (s *Sigil) cells(data []byte) []cell {
-	res := make([]cell, 0, s.cols()*s.Rows)
-	cells := s.Columns * s.Rows
+	cols := s.Rows/2 + s.Rows%2
+	cells := cols * s.Rows
+	res := make([]cell, 0, cells)
 	width := s.colWidth()
-	cols := s.cols()
 	padding := width / 2
 	for i := 0; i < cells; i++ {
 		column := i / s.Rows
@@ -95,15 +94,15 @@ func (s *Sigil) cells(data []byte) []cell {
 
 		pt := image.Pt(padding+(column*width), padding+(row*width))
 		c.rect = image.Rectangle{pt, image.Pt(pt.X+width, pt.Y+width)}
-		if s.Rows%2 == 0 && column == s.Columns-1 {
+		if s.Rows%2 == 0 && column == cols-1 {
 			// last/middle column, double width
 			c.rect.Max.X *= 2
 		}
 		res = append(res, c)
 
-		if column < s.Columns-1 {
+		if column < cols-1 {
 			// add mirrored column
-			c.rect.Min.X = padding + ((cols - column - 1) * width)
+			c.rect.Min.X = padding + ((s.Rows - column - 1) * width)
 			c.rect.Max.X = c.rect.Min.X + width
 			res = append(res, c)
 		}
@@ -120,13 +119,5 @@ func (s *Sigil) colors(b byte) (color.NRGBA, color.NRGBA) {
 }
 
 func (s *Sigil) colWidth() int {
-	return s.Width / (s.cols() + 1)
-}
-
-func (s *Sigil) cols() int {
-	cols := s.Columns * 2
-	if s.Rows%2 == 1 {
-		cols -= 1
-	}
-	return cols
+	return s.Width / (s.Rows + 1)
 }
