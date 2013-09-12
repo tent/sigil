@@ -95,7 +95,7 @@ func (s *Sigil) cells(width int, data []byte) []cell {
 		c.rect = image.Rectangle{pt, image.Pt(pt.X+width, pt.Y+width)}
 		if s.Rows%2 == 0 && column == cols-1 {
 			// last/middle column, double width
-			c.rect.Max.X *= 2
+			c.rect.Max.X += width
 		}
 		res = append(res, c)
 
