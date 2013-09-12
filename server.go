@@ -99,6 +99,7 @@ func md5hash(s string) []byte {
 }
 
 func main() {
+	http.HandleFunc("/favicon.ico", http.NotFound)
 	http.HandleFunc("/", imageHandler)
 	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), nil))
 }
