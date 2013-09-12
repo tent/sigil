@@ -16,21 +16,18 @@ type Sigil struct {
 }
 
 func (s *Sigil) Make(width int, inverted bool, data []byte) image.Image {
-	img := image.NewNRGBA(image.Rect(0, 0, width, width))
 	fg, bg := s.colors(data[0], inverted)
+	palette := color.Palette{fg, bg}
+	img := image.NewPaletted(image.Rect(0, 0, width, width), palette)
 	colWidth := s.colWidth(width)
 	for _, c := range s.cells(colWidth, data[1:]) {
 		for x := c.rect.Min.X; x < c.rect.Max.X; x++ {
 			for y := c.rect.Min.Y; y < c.rect.Max.Y; y++ {
-				fill := fg
+				var fill uint8
 				if !c.fill {
-					fill = bg
+					fill = 1
 				}
-				i := y*img.Stride + x*4
-				img.Pix[i+0] = fill.R
-				img.Pix[i+1] = fill.G
-				img.Pix[i+2] = fill.B
-				img.Pix[i+3] = fill.A
+				img.Pix[y*img.Stride+x] = fill
 			}
 		}
 	}
@@ -38,11 +35,7 @@ func (s *Sigil) Make(width int, inverted bool, data []byte) image.Image {
 	for x := 0; x < width; x++ {
 		for y := 0; y < width; y++ {
 			if x < padding || y < padding || x > width-padding-1 || y > width-padding-1 {
-				i := y*img.Stride + x*4
-				img.Pix[i+0] = bg.R
-				img.Pix[i+1] = bg.G
-				img.Pix[i+2] = bg.B
-				img.Pix[i+3] = bg.A
+				img.Pix[y*img.Stride+x] = 1
 			}
 		}
 	}
