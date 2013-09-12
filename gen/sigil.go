@@ -83,7 +83,7 @@ type cell struct {
 func (s *Sigil) cells(width int, data []byte) []cell {
 	cols := s.Rows/2 + s.Rows%2
 	cells := cols * s.Rows
-	res := make([]cell, 0, cells)
+	res := make([]cell, 0, s.Rows*s.Rows)
 	padding := width / 2
 	for i := 0; i < cells; i++ {
 		column := i / s.Rows
