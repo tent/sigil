@@ -17,6 +17,8 @@ Sigil generates an identicon from a source string. In most cases(see _Privacy_) 
 
 You can generate Sigils internally using this app (or your own implementation of the protocol below) or use a [Sigil service](https://sigil.cupcake.io).
 
+**needs query params and usage info**
+
 #### Privacy 
 
 There exists a possibility of significant user information disclosure if used improperly. Email addresses should *not* be used as the source string (even if hashed first) if the user's email address is not meant to be publicly available through your site. It is possible to discover the email address from which the Sigil was derived. This is a serious leak if the user's address is not exposed elsewhere on the site. In these cases, use a *different* source string composed of information that is available such as a username or user id. 
@@ -27,12 +29,14 @@ This repo contains a Sigil implementation written in Go, but Sigil can be implem
 
 Sigil uses the truncated MD5 hash of a string to create 5x5 identicons. The first three columns and the color are generated from the truncated hash, the last two columns are a reflection of the first two (1->5, 2->4).
 
+**needs real protocol description**
+
 ### Roadmap
 
 Sigil is still a work in progress. The color scheme is still being finalized and this implementation may be optimized further. Additional background colors will likely also be provided. We also intend to create a separate representation for _things_ instead of _users_ i.e. favicons for Herkou apps. The suggested use instructions (source string, background color, inverted colors) may also change before the 1.0 release.
 
 ### Try it
 
-Download this repo or visit [sigil.cupcake.io](https://sigil.cupcake.io) to generate a Sigil. 
+Download this repo or use [sigil.cupcake.io](https://sigil.cupcake.io) to generate a Sigil. 
 
 Use Sigils in your own apps for users who don't have avatars or use your own Sigil as an avatar in other apps.
