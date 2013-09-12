@@ -10,17 +10,17 @@ import (
 )
 
 type Sigil struct {
-	Width      int
 	Rows       int
 	Foreground []color.NRGBA
 	Background color.NRGBA
 	Inverted   bool
 }
 
-func (s *Sigil) Make(data []byte) image.Image {
-	img := image.NewNRGBA(image.Rect(0, 0, s.Width, s.Width))
+func (s *Sigil) Make(width int, data []byte) image.Image {
+	img := image.NewNRGBA(image.Rect(0, 0, width, width))
 	fg, bg := s.colors(data[0])
-	for _, c := range s.cells(data[1:]) {
+	colWidth := s.colWidth(width)
+	for _, c := range s.cells(colWidth, data[1:]) {
 		for x := c.rect.Min.X; x < c.rect.Max.X; x++ {
 			for y := c.rect.Min.Y; y < c.rect.Max.Y; y++ {
 				fill := fg
@@ -35,10 +35,10 @@ func (s *Sigil) Make(data []byte) image.Image {
 			}
 		}
 	}
-	padding := s.colWidth() / 2
-	for x := 0; x < s.Width; x++ {
-		for y := 0; y < s.Width; y++ {
-			if x < padding || y < padding || x > s.Width-padding-1 || y > s.Width-padding-1 {
+	padding := colWidth / 2
+	for x := 0; x < width; x++ {
+		for y := 0; y < width; y++ {
+			if x < padding || y < padding || x > width-padding-1 || y > width-padding-1 {
 				i := y*img.Stride + x*4
 				img.Pix[i+0] = bg.R
 				img.Pix[i+1] = bg.G
@@ -54,10 +54,11 @@ func (s *Sigil) MakeSVG(w io.Writer, data []byte) {
 	canvas := svg.New(w)
 	fg, bg := s.colors(data[0])
 	fgFill, bgFill := svgFill(fg), svgFill(bg)
+	width := (s.Rows + 1) * 2 * 40
 
-	canvas.Start(s.Width, s.Width)
-	canvas.Rect(0, 0, s.Width, s.Width, bgFill)
-	for _, c := range s.cells(data[1:]) {
+	canvas.Start(width, width)
+	canvas.Rect(0, 0, width, width, bgFill)
+	for _, c := range s.cells(s.colWidth(width), data[1:]) {
 		if c.fill {
 			canvas.Rect(c.rect.Min.X, c.rect.Min.Y, c.rect.Dx(), c.rect.Dy(), fgFill)
 		}
@@ -81,11 +82,10 @@ type cell struct {
 	rect image.Rectangle
 }
 
-func (s *Sigil) cells(data []byte) []cell {
+func (s *Sigil) cells(width int, data []byte) []cell {
 	cols := s.Rows/2 + s.Rows%2
 	cells := cols * s.Rows
 	res := make([]cell, 0, cells)
-	width := s.colWidth()
 	padding := width / 2
 	for i := 0; i < cells; i++ {
 		column := i / s.Rows
@@ -118,6 +118,6 @@ func (s *Sigil) colors(b byte) (color.NRGBA, color.NRGBA) {
 	return fg, s.Background
 }
 
-func (s *Sigil) colWidth() int {
-	return s.Width / (s.Rows + 1)
+func (s *Sigil) colWidth(w int) int {
+	return w / (s.Rows + 1)
 }

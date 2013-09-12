@@ -10,14 +10,14 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"strconv"
 	"strings"
 
 	"github.com/cupcake/sigil/gen"
 )
 
 var config = gen.Sigil{
-	Width: 420,
-	Rows:  5,
+	Rows: 5,
 	Foreground: []color.NRGBA{
 		rgb(45, 79, 255),
 		rgb(44, 172, 0),
@@ -39,6 +39,25 @@ func imageHandler(w http.ResponseWriter, r *http.Request) {
 	if ext != "" && ext != ".png" && ext != ".svg" {
 		http.Error(w, "Unknown file extension", http.StatusNotFound)
 		return
+	}
+
+	width := 240
+	if ws := r.URL.Query().Get("w"); ws != "" {
+		var err error
+		width, err = strconv.Atoi(ws)
+		if err != nil {
+			http.Error(w, "Invalid w parameter, must be an integer", http.StatusBadRequest)
+			return
+		}
+		if width > 600 {
+			http.Error(w, "Invalid w parameter, must be less than 600", http.StatusBadRequest)
+			return
+		}
+		div := (config.Rows + 1) * 2
+		if width%div != 0 {
+			http.Error(w, "Invalid w parameter, must be evenly divisible by "+strconv.Itoa(div), http.StatusBadRequest)
+			return
+		}
 	}
 
 	base := path.Base(r.URL.Path)
@@ -68,7 +87,7 @@ func imageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Content-Type", "image/png")
-	png.Encode(w, config.Make(data))
+	png.Encode(w, config.Make(width, data))
 }
 
 func md5hash(s string) []byte {
