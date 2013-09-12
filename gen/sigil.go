@@ -13,18 +13,22 @@ type Sigil struct {
 	Width      int
 	Columns    int
 	Rows       int
-	Foreground []color.Color
-	Background color.Color
+	Foreground []color.NRGBA
+	Background color.NRGBA
 	Inverted   bool
 }
 
 func (s *Sigil) Make(data []byte) image.Image {
 	img := image.NewNRGBA(image.Rect(0, 0, s.Width, s.Width))
 	fg, bg := s.colors(data[0])
-	for _, c := range s.cells(data[1:], fg, bg) {
+	for _, c := range s.cells(data[1:]) {
 		for x := c.rect.Min.X; x < c.rect.Max.X; x++ {
 			for y := c.rect.Min.Y; y < c.rect.Max.Y; y++ {
-				img.Set(x, y, c.color)
+				fill := fg
+				if !c.fill {
+					fill = bg
+				}
+				img.SetNRGBA(x, y, fill)
 			}
 		}
 	}
@@ -46,20 +50,19 @@ func (s *Sigil) MakeSVG(w io.Writer, data []byte) {
 
 	canvas.Start(s.Width, s.Width)
 	canvas.Rect(0, 0, s.Width, s.Width, bgFill)
-	for _, c := range s.cells(data[1:], fg, bg) {
-		if c.color != bg {
+	for _, c := range s.cells(data[1:]) {
+		if c.fill {
 			canvas.Rect(c.rect.Min.X, c.rect.Min.Y, c.rect.Dx(), c.rect.Dy(), fgFill)
 		}
 	}
 	canvas.End()
 }
 
-func svgFill(c color.Color) string {
-	nrgba := color.NRGBAModel.Convert(c).(color.NRGBA)
-	return fmt.Sprintf("fill:rgba(%d,%d,%d,%.2g);", nrgba.R, nrgba.G, nrgba.B, float64(nrgba.A)*1/255)
+func svgFill(c color.NRGBA) string {
+	return fmt.Sprintf("fill:rgba(%d,%d,%d,%.2g);", c.R, c.G, c.B, float64(c.A)*1/255)
 }
 
-func (s *Sigil) filled(cell int, data []byte) bool {
+func (s *Sigil) fill(cell int, data []byte) bool {
 	if data[cell/8]>>uint(8-((cell%8)+1))&1 == 0 {
 		return false
 	}
@@ -67,11 +70,11 @@ func (s *Sigil) filled(cell int, data []byte) bool {
 }
 
 type cell struct {
-	color color.Color
-	rect  image.Rectangle
+	fill bool
+	rect image.Rectangle
 }
 
-func (s *Sigil) cells(data []byte, fg, bg color.Color) []cell {
+func (s *Sigil) cells(data []byte) []cell {
 	res := make([]cell, 0, s.cols()*s.Rows)
 	cells := s.Columns * s.Rows
 	width := s.colWidth()
@@ -80,13 +83,7 @@ func (s *Sigil) cells(data []byte, fg, bg color.Color) []cell {
 	for i := 0; i < cells; i++ {
 		column := i / s.Rows
 		row := i % s.Rows
-		var c cell
-
-		if s.filled(i, data) {
-			c.color = fg
-		} else {
-			c.color = bg
-		}
+		c := cell{fill: s.fill(i, data)}
 
 		pt := image.Pt(padding+(column*width), padding+(row*width))
 		c.rect = image.Rectangle{pt, image.Pt(pt.X+width, pt.Y+width)}
@@ -106,12 +103,12 @@ func (s *Sigil) cells(data []byte, fg, bg color.Color) []cell {
 	return res
 }
 
-func (s *Sigil) colors(b byte) (color.Color, color.Color) {
-	c := s.Foreground[int(b)%len(s.Foreground)]
+func (s *Sigil) colors(b byte) (color.NRGBA, color.NRGBA) {
+	fg := s.Foreground[int(b)%len(s.Foreground)]
 	if s.Inverted {
-		return s.Background, c
+		return s.Background, fg
 	}
-	return c, s.Background
+	return fg, s.Background
 }
 
 func (s *Sigil) colWidth() int {

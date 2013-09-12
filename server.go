@@ -14,7 +14,7 @@ var config = gen.Sigil{
 	Width:   840,
 	Columns: 3,
 	Rows:    5,
-	Foreground: []color.Color{
+	Foreground: []color.NRGBA{
 		rgb(45, 79, 255),
 		rgb(44, 172, 0),
 		rgb(254, 180, 44),
