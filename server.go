@@ -35,8 +35,7 @@ func rgb(r, g, b uint8) color.NRGBA { return color.NRGBA{r, g, b, 255} }
 func imageHandler(w http.ResponseWriter, r *http.Request) {
 	ext := path.Ext(r.URL.Path)
 	if ext != "" && ext != ".png" && ext != ".svg" {
-		http.Error(w, "Unknown file extension", http.StatusNotFound)
-		return
+		ext = ""
 	}
 
 	width := 240
