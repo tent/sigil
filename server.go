@@ -101,5 +101,11 @@ func md5hash(s string) []byte {
 func main() {
 	http.HandleFunc("/favicon.ico", http.NotFound)
 	http.HandleFunc("/", imageHandler)
-	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), nil))
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8000"
+	}
+	log.Println("Starting sigil on :" + port)
+	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
