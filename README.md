@@ -4,7 +4,7 @@
 ![Sigil's Sigil](https://sigil.cupcake.io/Sigil)
 
 Sigil is a deterministic [identicon](https://en.wikipedia.org/wiki/Identicon)
-generator originally created for [Cupcake](https://cupcake.io).
+generator.
 
 Sigil creates a recognizable* identicon for each user that can be consistently
 used across many sites when a user-uploaded avatar or Gravatar is unavailable or
