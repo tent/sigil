@@ -2,16 +2,18 @@ package main
 
 import (
 	"crypto/md5"
+	"encoding/hex"
 	"image/color"
 	"image/png"
 	"log"
 	"net/http"
+	"path"
 
 	"github.com/cupcake/sigil/gen"
 )
 
 var config = gen.Sigil{
-	Width:   840,
+	Width:   420,
 	Columns: 3,
 	Rows:    5,
 	Foreground: []color.NRGBA{
@@ -31,8 +33,30 @@ var config = gen.Sigil{
 func rgb(r, g, b uint8) color.NRGBA { return color.NRGBA{r, g, b, 255} }
 
 func imageHandler(w http.ResponseWriter, r *http.Request) {
+	ext := path.Ext(r.URL.Path)
+	if ext != "" && ext != ".png" && ext != ".svg" {
+		http.Error(w, "Unknown file extension", http.StatusNotFound)
+		return
+	}
+
+	base := path.Base(r.URL.Path)
+	base = base[:len(base)-len(ext)]
+	var data []byte
+	if len(base) == 32 {
+		// try to decode hex MD5
+		data, _ = hex.DecodeString(base)
+	}
+	if data == nil {
+		data = md5hash(base)
+	}
+
+	if ext == ".svg" {
+		w.Header().Set("Content-Type", "image/svg+xml")
+		config.MakeSVG(w, data)
+		return
+	}
 	w.Header().Set("Content-Type", "image/png")
-	png.Encode(w, config.Make(md5hash(r.URL.Path[1:])))
+	png.Encode(w, config.Make(data))
 }
 
 func md5hash(s string) []byte {
