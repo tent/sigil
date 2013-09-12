@@ -7,6 +7,7 @@ import (
 	"image/png"
 	"log"
 	"net/http"
+	"os"
 	"path"
 
 	"github.com/cupcake/sigil/gen"
@@ -67,5 +68,5 @@ func md5hash(s string) []byte {
 
 func main() {
 	http.HandleFunc("/", imageHandler)
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), nil))
 }
