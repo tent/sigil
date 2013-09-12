@@ -28,7 +28,11 @@ func (s *Sigil) Make(data []byte) image.Image {
 				if !c.fill {
 					fill = bg
 				}
-				img.SetNRGBA(x, y, fill)
+				i := img.PixOffset(x, y)
+				img.Pix[i+0] = fill.R
+				img.Pix[i+1] = fill.G
+				img.Pix[i+2] = fill.B
+				img.Pix[i+3] = fill.A
 			}
 		}
 	}
@@ -36,7 +40,11 @@ func (s *Sigil) Make(data []byte) image.Image {
 	for x := 0; x < s.Width; x++ {
 		for y := 0; y < s.Width; y++ {
 			if x < padding || y < padding || x > s.Width-padding-1 || y > s.Width-padding-1 {
-				img.Set(x, y, bg)
+				i := img.PixOffset(x, y)
+				img.Pix[i+0] = bg.R
+				img.Pix[i+1] = bg.G
+				img.Pix[i+2] = bg.B
+				img.Pix[i+3] = bg.A
 			}
 		}
 	}
