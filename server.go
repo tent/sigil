@@ -50,6 +50,7 @@ func imageHandler(w http.ResponseWriter, r *http.Request) {
 		data = md5hash(base)
 	}
 
+	w.Header().Set("Cache-Control", "max-age=315360000")
 	if ext == ".svg" {
 		w.Header().Set("Content-Type", "image/svg+xml")
 		config.MakeSVG(w, data)
