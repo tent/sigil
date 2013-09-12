@@ -1,3 +1,4 @@
 *.png
 example/example
 sigil
+*.test
