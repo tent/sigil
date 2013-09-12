@@ -6,7 +6,7 @@ Sigil is intended to create a recognizable* identicon for users
 
 We created Sigil after being inspired by Github's [recent use](https://github.com/blog/1586-identicons) of identicons, but found their code was not open source. 
 
-* see "Using Sigil: Privacy" below
+\* see "Using Sigil: Privacy" below
 
 ## Using Sigil
 
