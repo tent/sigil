@@ -25,7 +25,7 @@ There exists a possibility of significant user information disclosure if used im
 
 This repo contains a Sigil implementation written in Go, but Sigil can be implemented in any language.
 
-Sigil uses the truncated MD5 hash of a string to create identicons. 
+Sigil uses the truncated MD5 hash of a string to create 5x5 identicons. The first three columns and the color are generated from the truncated hash, the last two columns are a reflection of the first two (1->5, 2->4).
 
 ### Roadmap
 
