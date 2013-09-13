@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"encoding/base64"
 	"encoding/hex"
+	"image"
 	"image/color"
 	"image/png"
 	"log"
@@ -14,6 +15,7 @@ import (
 	"strings"
 
 	"github.com/cupcake/sigil/gen"
+	"github.com/cupcake/sigil/gif"
 )
 
 var config = gen.Sigil{
@@ -41,7 +43,7 @@ func (handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ext := path.Ext(r.URL.Path)
-	if ext != "" && ext != ".png" && ext != ".svg" {
+	if ext != "" && ext != ".png" && ext != ".svg" && ext != ".gif" {
 		ext = ""
 	}
 
@@ -87,13 +89,19 @@ func (handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-
 	w.Header().Set("Cache-Control", "max-age=315360000")
-	if ext == ".svg" || strings.Contains(r.Header.Get("Accept"), "image/svg+xml") {
+
+	if ext == ".svg" {
 		w.Header().Set("Content-Type", "image/svg+xml")
 		config.MakeSVG(w, width, inverted, data)
 		return
 	}
+
+	if ext == ".gif" {
+		w.Header().Set("Content-Type", "image/gif")
+		gif.Encode(w, config.Make(width, inverted, data).(*image.Paletted))
+	}
+
 	w.Header().Set("Content-Type", "image/png")
 	png.Encode(w, config.Make(width, inverted, data))
 }
