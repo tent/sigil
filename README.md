@@ -87,3 +87,7 @@ Use Sigils in your own apps for users who don't have avatars or use your own
 Sigil as an avatar in other apps.
 
 [Ales Nesetril](http://www.alesnesetril.com/) designed the color scheme.
+
+### Other implementations
+
+- [Pydenticon](https://github.com/azaghal/pydenticon) (Python)
